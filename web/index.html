@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ObjectView</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="control-panel">
+        <section class="intro-card">
+          <p class="eyebrow">ObjectView</p>
+          <h1>View a 3D model.</h1>
+          <p id="backend-status">Checking C++ backend...</p>
+        </section>
+
+        <section class="panel-card">
+          <label class="field-label" for="sample-select">Samples</label>
+          <select id="sample-select">
+            <option value="perseverance-rover">Perseverance Rover</option>
+            <option value="craft-racer">Craft Racer</option>
+            <option value="toy-car">Toy Car</option>
+            <option value="calibration-cube">Calibration cube</option>
+            <option value="axis-marker">Axis marker</option>
+          </select>
+          <button id="load-sample" class="primary-button">Load sample</button>
+        </section>
+
+        <section class="panel-card">
+          <label class="field-label" for="model-files">Open files</label>
+          <input id="model-files" type="file" multiple accept=".obj,.mtl,.png,.jpg,.jpeg,.webp,.gltf,.glb,.stl,.ply" />
+          <p class="field-help">Choose an OBJ, GLTF/GLB, STL, or PLY file. Include MTL and texture files when needed.</p>
+        </section>
+
+        <section class="panel-card">
+          <div class="button-row">
+            <button id="reset-view">Reset</button>
+            <button id="toggle-spin">Spin</button>
+            <button id="toggle-wireframe">Wireframe</button>
+            <button id="clear-scene">Clear</button>
+            <button id="screenshot-scene">Screenshot</button>
+          </div>
+        </section>
+
+        <section class="panel-card stats-card">
+          <p id="status-text">Drop files into the viewport or load a sample.</p>
+          <dl class="stats-grid">
+            <div>
+              <dt>Format</dt>
+              <dd id="stat-format">None</dd>
+            </div>
+            <div>
+              <dt>Meshes</dt>
+              <dd id="stat-meshes">0</dd>
+            </div>
+            <div>
+              <dt>Triangles</dt>
+              <dd id="stat-triangles">0</dd>
+            </div>
+            <div>
+              <dt>Bounds</dt>
+              <dd id="stat-size">-</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+
+      <section class="viewer-layout">
+        <div id="viewer" class="viewer-canvas"></div>
+        <div id="dropzone" class="dropzone">
+          <p><strong>Drop model files here</strong></p>
+          <p>OBJ + MTL + textures can be dropped together.</p>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

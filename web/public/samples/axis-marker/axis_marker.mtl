@@ -1,0 +1,8 @@
+newmtl red
+Kd 0.95 0.18 0.12
+
+newmtl green
+Kd 0.52 0.86 0.18
+
+newmtl blue
+Kd 0.16 0.42 0.95

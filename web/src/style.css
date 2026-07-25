@@ -1,0 +1,218 @@
+:root {
+  color-scheme: dark;
+  --bg: #101315;
+  --panel: rgba(18, 21, 23, 0.94);
+  --card: rgba(255, 255, 255, 0.045);
+  --line: rgba(255, 255, 255, 0.09);
+  --text: #f2f1ed;
+  --muted: #9ca5a9;
+  --accent: #e1a05f;
+  --accent-strong: #ffc27a;
+  --danger: #ff7a59;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(225, 160, 95, 0.14), transparent 28%),
+    linear-gradient(145deg, #15191b 0%, #0d1012 62%, #080a0b 100%);
+  color: var(--text);
+  font-family: "Aptos", "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+}
+
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+  padding: 0.65rem;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+
+.intro-card,
+.panel-card {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--card);
+}
+
+.intro-card {
+  padding: 0.82rem;
+}
+
+.panel-card {
+  padding: 0.64rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.28rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0 0 0.36rem;
+  font-size: clamp(1.55rem, 3.6vw, 2.55rem);
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.34rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.field-help {
+  margin-top: 0.36rem;
+  font-size: 0.86rem;
+}
+
+input[type="file"],
+select {
+  width: 100%;
+  padding: 0.52rem 0.64rem;
+  border: 1px solid var(--line);
+  border-radius: 0.82rem;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text);
+}
+
+button {
+  padding: 0.52rem 0.64rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text);
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: rgba(225, 160, 95, 0.65);
+}
+
+.primary-button {
+  width: 100%;
+  margin-top: 0.45rem;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #151311;
+  font-weight: 800;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.48rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.48rem 0.65rem;
+  margin: 0.58rem 0 0;
+}
+
+.stats-grid div {
+  min-width: 0;
+}
+
+.stats-grid dt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.stats-grid dd {
+  margin: 0.14rem 0 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer-layout {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.viewer-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.dropzone {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  width: min(18rem, calc(100% - 2rem));
+  padding: 0.8rem 0.92rem;
+  border: 1px dashed rgba(225, 160, 95, 0.55);
+  border-radius: 1rem;
+  background: rgba(9, 11, 12, 0.58);
+  backdrop-filter: blur(14px);
+}
+
+.dropzone.dragover {
+  border-color: var(--accent-strong);
+  background: rgba(225, 160, 95, 0.14);
+}
+
+@media (max-width: 860px) {
+  html,
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .control-panel {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .viewer-layout {
+    height: 68vh;
+  }
+}

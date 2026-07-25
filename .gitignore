@@ -1,0 +1,16 @@
+build/
+dist/
+web/dist/
+web/node_modules/
+asset-downloads/
+screenshots/
+.DS_Store
+*.user
+*.suo
+*.vcxproj*
+*.exe
+*.pdb
+*.ilk
+*.obj
+!web/public/**/*.obj
+!native/samples/**/*.obj

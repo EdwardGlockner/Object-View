@@ -1,0 +1,363 @@
+# Materials derived from the NASA Perseverance glTF.
+
+newmtl mars_2020_03
+Ka 0.15357 0.138903 0.097492
+Kd 0.698043 0.631377 0.443143
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_03.jpg
+
+newmtl mars_2020_01_2
+Ka 0.049178 0.052629 0.054354
+Kd 0.223535 0.239222 0.247065
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_01.jpg
+
+newmtl mars_2020_04_3
+Ka 0.10008 0.104393 0.106119
+Kd 0.454908 0.474516 0.482359
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_04.jpg
+
+newmtl mars_2020_02_4
+Ka 0.181177 0.177726 0.165648
+Kd 0.823532 0.807846 0.752945
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_02.jpg
+
+newmtl paint_white_base_5
+Ka 0.19153 0.190667 0.184628
+Kd 0.87059 0.866669 0.839218
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_04_aluminum_r_6
+Ka 0.173412 0.173412 0.170824
+Kd 0.788238 0.788238 0.776474
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_04.jpg
+
+newmtl aluminum_black_7
+Ka 0.029334 0.03106 0.032785
+Kd 0.133339 0.141182 0.149025
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_05_8
+Ka 0.081962 0.08455 0.082825
+Kd 0.372555 0.38432 0.376477
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_05.jpg
+
+newmtl aluminum_9
+Ka 0.173412 0.173412 0.170824
+Kd 0.788238 0.788238 0.776474
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl spring_10
+Ka 0.133727 0.134589 0.135452
+Kd 0.607848 0.61177 0.615691
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_06_brass2_11
+Ka 0.174275 0.138903 0.063844
+Kd 0.79216 0.631377 0.290202
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl aluminum_black.001_12
+Ka 0.029334 0.03106 0.032785
+Kd 0.133339 0.141182 0.149025
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_04.001_13
+Ka 0.10008 0.104393 0.106119
+Kd 0.454908 0.474516 0.482359
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_04.jpg
+
+newmtl grey_brushed_14
+Ka 0.133727 0.134589 0.135452
+Kd 0.607848 0.61177 0.615691
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl hub_15
+Ka 0.144942 0.138903 0.129413
+Kd 0.658828 0.631377 0.58824
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_hub.jpg
+
+newmtl gunmetal_16
+Ka 0.073335 0.07506 0.076786
+Kd 0.33334 0.341183 0.349026
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_05_gunmetal_17
+Ka 0.073335 0.07506 0.076786
+Kd 0.33334 0.341183 0.349026
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_05.jpg
+
+newmtl gunmetal_dark_18
+Ka 0.029334 0.03106 0.032785
+Kd 0.133339 0.141182 0.149025
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl gray_krinkle_19
+Ka 0.133727 0.134589 0.135452
+Kd 0.607848 0.61177 0.615691
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_gunmetal_dark_20
+Ka 0.029334 0.03106 0.032785
+Kd 0.133339 0.141182 0.149025
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_05.jpg
+
+newmtl foil_orange_21
+Ka 0.158746 0.102668 0.038825
+Kd 0.721572 0.466673 0.176476
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_07_22
+Ka 0.04055 0.042276 0.044001
+Kd 0.184319 0.192163 0.200006
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_07_BLACKOUT.jpg
+
+newmtl arm_graphics_23
+Ka 0.194981 0.189804 0.17255
+Kd 0.886276 0.862747 0.784317
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/arm_graphics.jpg
+
+newmtl mars_2020_02_n_24
+Ka 0.181177 0.177726 0.165648
+Kd 0.823532 0.807846 0.752945
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_02.jpg
+
+newmtl bronze_25
+Ka 0.165001 0.136704 0.107251
+Kd 0.750003 0.62138 0.487506
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl Material_26
+Ka 0.154842 0.102267 0.068929
+Kd 0.703827 0.464849 0.313314
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_06_27
+Ka 0.158746 0.124236 0.060394
+Kd 0.721572 0.564711 0.274516
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_06.jpg
+
+newmtl glass_2_28
+Ka 0.135452 0.163922 0.155295
+Kd 0.615691 0.745102 0.705886
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/glass.png
+
+newmtl transparent_29
+Ka 0.144942 0.138903 0.129413
+Kd 0.658828 0.631377 0.58824
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/clear.png.png
+
+newmtl glass_lens_30
+Ka 0.135452 0.163922 0.155295
+Kd 0.615691 0.745102 0.705886
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl iron_31
+Ka 0.133727 0.134589 0.135452
+Kd 0.607848 0.61177 0.615691
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_05_aluminum_32
+Ka 0.173412 0.173412 0.170824
+Kd 0.788238 0.788238 0.776474
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_05.jpg
+
+newmtl mars_2020_05_brass_33
+Ka 0.174275 0.138903 0.063844
+Kd 0.79216 0.631377 0.290202
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_05.jpg
+
+newmtl mars_2020_05_cooling_lines_34
+Ka 0.081962 0.08455 0.082825
+Kd 0.372555 0.38432 0.376477
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_05.jpg
+
+newmtl copper_35
+Ka 0.145805 0.092315 0.062982
+Kd 0.66275 0.419614 0.286281
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl array_gold_trim_36
+Ka 0.174275 0.138903 0.063844
+Kd 0.79216 0.631377 0.290202
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl gold_37
+Ka 0.174275 0.138903 0.063844
+Kd 0.79216 0.631377 0.290202
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl black_krinkle_38
+Ka 0.029334 0.03106 0.032785
+Kd 0.133339 0.141182 0.149025
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl brass_39
+Ka 0.174275 0.138903 0.063844
+Kd 0.79216 0.631377 0.290202
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl nameplate_40
+Ka 0.194981 0.189804 0.17255
+Kd 0.886276 0.862747 0.784317
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/nameplate.jpg
+
+newmtl mars_2020_01_n_41
+Ka 0.049178 0.052629 0.054354
+Kd 0.223535 0.239222 0.247065
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_01.jpg
+
+newmtl blades_42
+Ka 0.144942 0.138903 0.129413
+Kd 0.658828 0.631377 0.58824
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/blade.jpg
+
+newmtl aluminum.003_43
+Ka 0.173412 0.173412 0.170824
+Kd 0.788238 0.788238 0.776474
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_03.002_44
+Ka 0.15357 0.138903 0.097492
+Kd 0.698043 0.631377 0.443143
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_03.jpg
+
+newmtl aluminum.001_45
+Ka 0.173412 0.173412 0.170824
+Kd 0.788238 0.788238 0.776474
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+
+newmtl mars_2020_06_n_46
+Ka 0.158746 0.124236 0.060394
+Kd 0.721572 0.564711 0.274516
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/mars_2020_06.jpg
+
+newmtl covidPlaque_47
+Ka 0.194981 0.189804 0.17255
+Kd 0.886276 0.862747 0.784317
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/cvoidPlaque.jpg
+
+newmtl sample_handling_door_48
+Ka 0.144942 0.138903 0.129413
+Kd 0.658828 0.631377 0.58824
+Ks 0.24 0.24 0.24
+Ns 36
+d 1
+map_Kd textures/sample_handling_door.jpg

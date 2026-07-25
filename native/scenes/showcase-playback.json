@@ -1,0 +1,31 @@
+{
+  "name": "Showcase: Playback",
+  "objects": [
+    {
+      "id": "rover",
+      "asset": "../samples/perseverance-rover/perseverance_rover.obj",
+      "transform": {
+        "position": [-2.2, 0.8, -1.2],
+        "rotation": [0, -35, 0],
+        "scale": 1
+      },
+      "keyframes": [
+        {"t": 0, "position": [-2.2, 0.8, -1.2], "rotation": [0, -35, 0]},
+        {"t": 4, "position": [0.2, 0.8, 0.2], "rotation": [0, 0, 0]},
+        {"t": 8, "position": [2.4, 0.8, 1.3], "rotation": [0, 35, 0]}
+      ]
+    }
+  ],
+  "paths": [
+    {
+      "id": "route",
+      "points": [[-2.2, 0.15, -1.2], [0.2, 0.15, 0.2], [2.4, 0.15, 1.3]],
+      "color": [0.44, 0.91, 0.77, 1],
+      "width": 3
+    }
+  ],
+  "vectors": [],
+  "frames": [],
+  "markers": [],
+  "heatmaps": []
+}
