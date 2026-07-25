@@ -2,6 +2,8 @@
 
 ObjectView scenes are JSON files for generic 3D visualization. The format avoids domain-specific names so other projects can use it for robotics, CAD, scientific visualization, trajectories, annotations, or ML tools.
 
+Both the native viewer (`object-view-native scene.json`) and the web viewer (load-by-path, or drag a single `.json` scene file into the drop zone) render the same format. The web viewer additionally supports mouse-picking on markers (hover for a tooltip); the native viewer does not pick anything in the 3D view.
+
 ## Top Level
 
 ```json
@@ -115,16 +117,19 @@ Frames draw XYZ axes at a transform.
 
 ## Markers
 
-Markers draw small 3D cross markers.
+Markers draw a small pickable point of interest.
 
 ```json
 {
   "id": "selected-point",
   "position": [1, 0.2, 0.5],
   "color": [0.95, 0.25, 0.18, 1],
-  "size": 0.12
+  "size": 0.12,
+  "label": "Optional tooltip text"
 }
 ```
+
+`label` is optional and only used by the web viewer, which shows it as a hover tooltip when you point at the marker (native draws markers but has no picking, so `label` is ignored there).
 
 ## Heatmaps
 

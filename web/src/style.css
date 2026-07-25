@@ -195,6 +195,93 @@ button:hover {
   background: rgba(225, 160, 95, 0.14);
 }
 
+.inline-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.inline-row input[type="text"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.52rem 0.64rem;
+  border: 1px solid var(--line);
+  border-radius: 0.82rem;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text);
+}
+
+.inline-row button {
+  flex: 0 0 auto;
+}
+
+.transport-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.transport-row button {
+  flex: 0 0 auto;
+}
+
+.transport-row button.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #151311;
+  font-weight: 800;
+}
+
+#scrub {
+  flex: 1 1 auto;
+  accent-color: var(--accent);
+}
+
+.time-label {
+  flex: 0 0 auto;
+  min-width: 8ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-swatch {
+  width: 0.65rem;
+  height: 0.65rem;
+  flex: 0 0 auto;
+  border-radius: 0.18rem;
+}
+
+.marker-tooltip {
+  position: absolute;
+  z-index: 3;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: rgba(9, 11, 12, 0.86);
+  backdrop-filter: blur(10px);
+  color: var(--text);
+  font-size: 0.82rem;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 0.6rem));
+  white-space: nowrap;
+}
+
 @media (max-width: 860px) {
   html,
   body {

@@ -38,8 +38,10 @@ Try any of these yourself:
 - Provides a native C++ OpenGL executable for desktop rendering.
 - Provides a WebGL browser viewer built with Three.js.
 - Opens OBJ files in the native viewer.
-- Opens generic ObjectView scene JSON files in the native viewer.
+- Opens generic ObjectView scene JSON files in both the native and web viewers, with the same primitives (objects, keyframes, ghosts, paths, vectors, frames, markers, heatmaps).
 - Opens OBJ, GLTF/GLB, STL, and PLY files in the browser.
+- Web viewer only: click-to-inspect markers via mouse-picking, with a hover tooltip.
+- Web viewer only, in dev: load a scene JSON from a sibling project's local path (e.g. LatentWorld's exports) via Vite's `/@fs/`, no copying files into this repo.
 - Supports OBJ material files in both viewers.
 - Bundles the official NASA Perseverance rover model as the default sample.
 - Centers and scales models automatically on load.
@@ -171,6 +173,9 @@ WebGL viewer:
 - WASD: move on the X/Z plane.
 - Q/E: move down/up.
 - Click Screenshot to download a PNG of the current canvas.
+- Type a scene JSON path into "Load a scene JSON" and click Load — accepts a bundled `/data/...` path or, in dev, a local filesystem path (Windows or POSIX) from this or a sibling project.
+- Drop a single `.json` scene file into the drop zone (its asset paths must be reachable from the page — bundled or `/@fs/`-allowed).
+- When a loaded scene has keyframed objects, a Play/Pause button and scrub bar appear; when it has markers, hover one for a tooltip.
 
 ## Notes
 

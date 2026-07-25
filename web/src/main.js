@@ -7,6 +7,12 @@ import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 
+import { parseScene } from "./scene/parseScene.js";
+import { buildScene } from "./scene/buildScene.js";
+import { createPlayback } from "./scene/playback.js";
+import { createPicker } from "./scene/picking.js";
+import { toFetchablePath } from "./scene/sceneAssets.js";
+
 const viewerElement = document.querySelector("#viewer");
 const dropzoneElement = document.querySelector("#dropzone");
 const sampleSelect = document.querySelector("#sample-select");
@@ -23,6 +29,15 @@ const statFormat = document.querySelector("#stat-format");
 const statMeshes = document.querySelector("#stat-meshes");
 const statTriangles = document.querySelector("#stat-triangles");
 const statSize = document.querySelector("#stat-size");
+const scenePathInput = document.querySelector("#scene-path");
+const loadSceneButton = document.querySelector("#load-scene");
+const transportCard = document.querySelector("#transport-card");
+const playPauseButton = document.querySelector("#play-pause");
+const scrubInput = document.querySelector("#scrub");
+const timeLabel = document.querySelector("#time-label");
+const legendCard = document.querySelector("#legend-card");
+const legendList = document.querySelector("#legend-list");
+const markerTooltip = document.querySelector("#marker-tooltip");
 
 const sampleCatalog = {
   "perseverance-rover": {
@@ -46,6 +61,17 @@ const sampleCatalog = {
     files: ["/samples/axis-marker/axis_marker.obj", "/samples/axis-marker/axis_marker.mtl"],
   },
 };
+
+const LEGEND_ROWS = [
+  { key: "objects", color: "#ff3f2e", label: "Local axes: spins with object" },
+  { key: "objects", color: "#3399ff", label: "Global axes: fixed to world" },
+  { key: "paths", color: "#71e7c4", label: "Path: a route or trajectory" },
+  { key: "vectors", color: "#bf59d9", label: "Vector: a direction" },
+  { key: "ghosts", color: "#b3b3b3", label: "Ghost: alt. pose (faded)" },
+  { key: "markers", color: "#fadb59", label: "Marker: point of interest" },
+  { key: "frames", color: "#e68033", label: "Frame: authored coord. axes" },
+  { key: "heatmaps", color: "#bf4080", label: "Heatmap: value on the ground" },
+];
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101315);
@@ -83,6 +109,12 @@ let wireframe = false;
 let baseScale = 1;
 let zoomScale = 1;
 let lastFrameTime = 0;
+
+let activeScene = null; // { globalGroups, pickables, update, ... } while a scene JSON is loaded
+let playback = null;
+let scrubbing = false;
+
+const picker = createPicker(renderer.domElement, camera);
 
 const movementKeys = new Set();
 const movementKeyCodes = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"]);
@@ -160,7 +192,18 @@ function disposeCurrentObjectUrls() {
   currentObjectUrls = [];
 }
 
+function hideSceneUi() {
+  transportCard.hidden = true;
+  legendCard.hidden = true;
+  markerTooltip.hidden = true;
+  picker.setPickables([]);
+  playback = null;
+  activeScene = null;
+}
+
 function clearCurrentModel() {
+  hideSceneUi();
+
   if (!currentModelRoot) {
     updateStats();
     return;
@@ -274,6 +317,32 @@ function centerAndFit(object) {
   });
 }
 
+function centerAndFitScene(built) {
+  const root = new THREE.Group();
+  const pivot = new THREE.Vector3(...built.pivot);
+  built.root.position.sub(pivot);
+  root.add(built.root);
+
+  const maxDimension = Math.max(built.radius * 2, 0.5);
+  baseScale = 3.15 / maxDimension;
+  zoomScale = 1;
+  root.scale.setScalar(baseScale);
+  root.position.set(0, 0, 0);
+  root.rotation.set(-0.08, 0.72, 0);
+
+  currentModelRoot = root;
+  currentModelContent = built.root;
+  scene.add(root);
+
+  const geometryStats = countSceneGeometry(built.root);
+  updateStats({
+    format: "SCENE",
+    meshes: geometryStats.meshes,
+    triangles: geometryStats.triangles,
+    sizeLabel: `radius ${built.radius.toFixed(2)}`,
+  });
+}
+
 function resetView() {
   if (!currentModelRoot) {
     return;
@@ -288,8 +357,12 @@ function resetView() {
 async function loadObjWithMaterials(objUrl, mtlUrl, manager = createLoadingManager()) {
   let materials = null;
   if (mtlUrl) {
-    materials = await new MTLLoader(manager).loadAsync(mtlUrl);
-    materials.preload();
+    try {
+      materials = await new MTLLoader(manager).loadAsync(mtlUrl);
+      materials.preload();
+    } catch {
+      materials = null;
+    }
   }
 
   const loader = new OBJLoader(manager);
@@ -298,6 +371,27 @@ async function loadObjWithMaterials(objUrl, mtlUrl, manager = createLoadingManag
   }
 
   return loader.loadAsync(objUrl);
+}
+
+async function loadModelAsset(url, mtlUrl) {
+  const extension = url.split(".").pop().toLowerCase();
+  if (extension === "obj") {
+    return loadObjWithMaterials(url, mtlUrl);
+  }
+  if (extension === "glb" || extension === "gltf") {
+    const result = await new GLTFLoader().loadAsync(url);
+    return result.scene;
+  }
+  if (extension === "stl") {
+    const geometry = await new STLLoader().loadAsync(url);
+    return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xd6d2c8, roughness: 0.72 }));
+  }
+  if (extension === "ply") {
+    const geometry = await new PLYLoader().loadAsync(url);
+    geometry.computeVertexNormals();
+    return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xd6d2c8, roughness: 0.72 }));
+  }
+  throw new Error(`Unsupported asset type: ${url}`);
 }
 
 async function loadModelFromFileList(fileList) {
@@ -370,8 +464,76 @@ async function inspectObjWithBackend(source, name) {
   }
 }
 
+function renderLegend(flags) {
+  legendList.innerHTML = "";
+  for (const row of LEGEND_ROWS) {
+    if (!flags[row.key]) continue;
+    const item = document.createElement("li");
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.background = row.color;
+    const label = document.createElement("span");
+    label.textContent = row.label;
+    item.append(swatch, label);
+    legendList.append(item);
+  }
+  legendCard.hidden = legendList.children.length === 0;
+}
+
+function formatSeconds(value) {
+  return `${value.toFixed(1)}s`;
+}
+
+async function loadSceneFromUrl(url) {
+  clearCurrentModel();
+  setStatus(`Loading scene ${url}...`);
+
+  const fetchUrl = toFetchablePath(url);
+  const response = await fetch(fetchUrl);
+  if (!response.ok) {
+    throw new Error(`Could not fetch scene: ${response.status}`);
+  }
+  const raw = await response.json();
+  const parsed = parseScene(raw);
+
+  const built = await buildScene(parsed, fetchUrl, loadModelAsset);
+  centerAndFitScene(built);
+
+  activeScene = built;
+  picker.setPickables(built.pickables);
+  renderLegend(built.legend);
+
+  if (built.duration > 0) {
+    transportCard.hidden = false;
+    playback = createPlayback(built.duration, (time, duration, playing) => {
+      built.update(time);
+      if (!scrubbing) scrubInput.value = String(time / duration);
+      timeLabel.textContent = `${formatSeconds(time)} / ${formatSeconds(duration)}`;
+      playPauseButton.textContent = playing ? "Pause" : "Play";
+      playPauseButton.classList.toggle("is-active", playing);
+    });
+  } else {
+    transportCard.hidden = true;
+  }
+
+  setStatus(`${parsed.name} loaded.`);
+}
+
 async function loadSample() {
-  const sample = sampleCatalog[sampleSelect.value];
+  const value = sampleSelect.value;
+
+  if (value.startsWith("scene:")) {
+    const scenePath = value.slice("scene:".length);
+    try {
+      await loadSceneFromUrl(scenePath);
+    } catch (error) {
+      console.error(error);
+      setStatus("Could not load the scene.");
+    }
+    return;
+  }
+
+  const sample = sampleCatalog[value];
   clearCurrentModel();
   setStatus(`Loading ${sample.label}...`);
 
@@ -413,6 +575,18 @@ function animate(frameTime = 0) {
   }
 
   updateContinuousMovement(deltaSeconds);
+
+  if (playback) {
+    playback.tick(deltaSeconds);
+  }
+
+  if (activeScene && currentModelRoot) {
+    const inverseDrag = currentModelRoot.quaternion.clone().invert();
+    for (const globalGroup of activeScene.globalGroups) {
+      globalGroup.quaternion.copy(inverseDrag);
+    }
+  }
+
   renderer.render(scene, camera);
 }
 
@@ -528,6 +702,15 @@ loadSampleButton.addEventListener("click", () => loadSample().catch((error) => {
   setStatus("Could not load the sample.");
 }));
 
+loadSceneButton.addEventListener("click", () => {
+  const path = scenePathInput.value.trim();
+  if (!path) return;
+  loadSceneFromUrl(path).catch((error) => {
+    console.error(error);
+    setStatus("Could not load the scene.");
+  });
+});
+
 resetViewButton.addEventListener("click", resetView);
 
 toggleSpinButton.addEventListener("click", () => {
@@ -564,6 +747,35 @@ screenshotButton.addEventListener("click", () => {
   }, "image/png");
 });
 
+playPauseButton.addEventListener("click", () => playback?.toggle());
+
+scrubInput.addEventListener("input", () => {
+  if (!playback) return;
+  scrubbing = true;
+  playback.pause();
+  playback.seek(Number(scrubInput.value) * playback.duration);
+});
+scrubInput.addEventListener("change", () => {
+  scrubbing = false;
+});
+
+picker.onHover((object, event) => {
+  if (!object || object.userData?.kind !== "marker") {
+    markerTooltip.hidden = true;
+    renderer.domElement.style.cursor = drag.active ? "grabbing" : "grab";
+    return;
+  }
+
+  const marker = object.userData.marker;
+  const label = marker.label ?? marker.id ?? "marker";
+  const rect = viewerElement.getBoundingClientRect();
+  markerTooltip.textContent = label;
+  markerTooltip.style.left = `${event.clientX - rect.left}px`;
+  markerTooltip.style.top = `${event.clientY - rect.top}px`;
+  markerTooltip.hidden = false;
+  renderer.domElement.style.cursor = "pointer";
+});
+
 ["dragenter", "dragover"].forEach((eventName) => {
   dropzoneElement.addEventListener(eventName, (event) => {
     event.preventDefault();
@@ -579,6 +791,27 @@ screenshotButton.addEventListener("click", () => {
 });
 
 dropzoneElement.addEventListener("drop", (event) => {
+  const files = [...event.dataTransfer.files];
+  const sceneFile = files.find((file) => file.name.toLowerCase().endsWith(".json"));
+
+  if (sceneFile && files.length === 1) {
+    sceneFile.text().then((text) => {
+      clearCurrentModel();
+      const parsed = parseScene(JSON.parse(text));
+      return buildScene(parsed, "/", loadModelAsset).then((built) => {
+        centerAndFitScene(built);
+        activeScene = built;
+        picker.setPickables(built.pickables);
+        renderLegend(built.legend);
+        setStatus(`${parsed.name} loaded.`);
+      });
+    }).catch((error) => {
+      console.error(error);
+      setStatus("Could not load the dropped scene (its asset paths must be reachable from this page).");
+    });
+    return;
+  }
+
   loadModelFromFileList(event.dataTransfer.files).catch((error) => {
     console.error(error);
     setStatus("Could not load the dropped model.");
@@ -586,6 +819,7 @@ dropzoneElement.addEventListener("drop", (event) => {
 });
 
 window.addEventListener("resize", resizeRenderer);
+new ResizeObserver(resizeRenderer).observe(viewerElement);
 
 fetch("/api/health")
   .then((response) => response.json())
