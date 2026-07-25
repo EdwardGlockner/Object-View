@@ -4,6 +4,8 @@ ObjectView is a small 3D model viewer with both a native C++ OpenGL viewer and a
 
 The native viewer renders OBJ geometry, materials, lighting, axes, camera controls, and simple texture-backed materials directly with C++ and OpenGL. The web layer renders common 3D formats in the browser with Three.js/WebGL.
 
+![Rover Traversal Demo: a rover animates along a planned route, past a ghost of a rejected route, over a terrain heatmap](docs/images/rover-traversal-demo.gif)
+
 ## What You Can Build With It
 
 Beyond viewing a single model, the scene format (see [`docs/SCENE_FORMAT.md`](docs/SCENE_FORMAT.md)) adds a few generic primitives for building richer visualizations on top of a model:
@@ -20,7 +22,7 @@ Beyond viewing a single model, the scene format (see [`docs/SCENE_FORMAT.md`](do
 
 ![Paths example: a rover with a route line, a heading arrow, and a goal marker](docs/images/showcase-paths.png)
 
-**Animate objects over time.** Objects can move along keyframes with a Play/Pause button and scrub bar in the viewer — run `./build/object-view-native native/scenes/scene-demo.json` and press Play to see it live.
+**Animate objects over time.** Objects can move along keyframes with a Play/Pause button and scrub bar in the viewer — that's what's animating in the GIF above. Run `./build/object-view-native native/scenes/scene-demo.json` and press Play to see it live.
 
 Try any of these yourself:
 
