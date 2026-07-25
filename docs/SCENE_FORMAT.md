@@ -125,11 +125,12 @@ Markers draw a small pickable point of interest.
   "position": [1, 0.2, 0.5],
   "color": [0.95, 0.25, 0.18, 1],
   "size": 0.12,
-  "label": "Optional tooltip text"
+  "label": "Optional tooltip text",
+  "time": 4.0
 }
 ```
 
-`label` is optional and only used by the web viewer, which shows it as a hover tooltip when you point at the marker (native draws markers but has no picking, so `label` is ignored there).
+`label` and `time` are optional and only used by the web viewer (ignored by native, which has no picking). `label` shows as a hover tooltip. `time` is for the linked dual-view page (`web/linked.html`): clicking a marker there seeks another loaded scene's playback to that time, so a marker representing "the state at t=4.0s" can jump an animated object to that exact pose.
 
 ## Heatmaps
 

@@ -42,6 +42,7 @@ Try any of these yourself:
 - Opens OBJ, GLTF/GLB, STL, and PLY files in the browser.
 - Web viewer only: click-to-inspect markers via mouse-picking, with a hover tooltip.
 - Web viewer only, in dev: load a scene JSON from a sibling project's local path (e.g. LatentWorld's exports) via Vite's `/@fs/`, no copying files into this repo.
+- A second web page, `linked.html`, opens two independent scenes side by side and lets you click a marker in one to seek the other's playback to that marker's `time` — e.g. click a point on a latent-space map and watch an embodied 3D view jump to that exact state.
 - Supports OBJ material files in both viewers.
 - Bundles the official NASA Perseverance rover model as the default sample.
 - Centers and scales models automatically on load.
@@ -147,6 +148,8 @@ npm run dev
 ```
 
 If the C++ backend is also running on port `8080`, Vite proxies `/api` calls to it.
+
+Open `http://127.0.0.1:5173/linked.html` for the two-panel linked-view page (paste in two scene paths; click a marker on the left to seek the right view's playback).
 
 ## Controls
 

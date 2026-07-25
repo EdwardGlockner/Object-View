@@ -303,3 +303,97 @@ button:hover {
     height: 68vh;
   }
 }
+
+.linked-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  height: 100vh;
+  padding: 1.1rem 1.3rem;
+}
+
+.linked-header {
+  flex: 0 0 auto;
+}
+
+.linked-header h1 {
+  margin: 0 0 0.3rem;
+  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+  letter-spacing: -0.03em;
+}
+
+.linked-header p {
+  max-width: 60ch;
+}
+
+.linked-header code {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.35rem;
+}
+
+.linked-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.linked-panel {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.linked-panel-controls {
+  flex: 0 0 auto;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: var(--card);
+}
+
+.linked-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #101315;
+}
+
+.linked-canvas canvas {
+  display: block;
+}
+
+.linked-status {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.linked-tooltip {
+  position: fixed;
+}
+
+@media (max-width: 960px) {
+  .linked-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+
+  .linked-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .linked-canvas {
+    min-height: 42vh;
+  }
+}

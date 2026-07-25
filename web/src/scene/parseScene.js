@@ -57,6 +57,7 @@ export function parseScene(raw) {
       color: color(item.color, [0.94, 0.7, 0.36, 1]),
       size: typeof item.size === "number" ? item.size : 0.08,
       label: typeof item.label === "string" ? item.label : null,
+      time: typeof item.time === "number" ? item.time : null,
     })),
     heatmaps: (raw.heatmaps ?? []).map((item) => ({
       id: item.id ?? "",
