@@ -845,6 +845,20 @@ if (initialScenePath) {
   });
 }
 
+// ?watch=<ms>, alongside ?scene=, re-fetches and rebuilds the same path on
+// an interval -- for pointing this at a stable filename a training run
+// keeps overwriting (see latentworld.callbacks.generic.SnapshotCallback's
+// write_latest) so the page updates on its own as training progresses,
+// instead of only ever showing whatever was loaded at page-open time.
+// Trades away camera position on every refresh (reloading re-fits the
+// scene from scratch, same as a manual Load click) for staying simple.
+const watchIntervalMs = Number(new URLSearchParams(window.location.search).get("watch"));
+if (initialScenePath && watchIntervalMs > 0) {
+  setInterval(() => {
+    loadSceneFromUrl(initialScenePath).catch((error) => console.error(error));
+  }, watchIntervalMs);
+}
+
 resizeRenderer();
 animate();
 if (!initialScenePath) loadSample().catch((error) => {

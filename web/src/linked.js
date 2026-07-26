@@ -151,6 +151,17 @@ if (initialRight) {
   loadRight(initialRight);
 }
 
+// ?watch=<ms> re-fetches and rebuilds whichever of left/right had an
+// initial path, on an interval -- see main.js's identical mechanism for
+// why (pointing this at a filename latentworld.callbacks.generic's
+// SnapshotCallback keeps overwriting during a real training run). Same
+// tradeoff: each refresh re-fits the camera from scratch.
+const watchIntervalMs = Number(initialParams.get("watch"));
+if (watchIntervalMs > 0) {
+  if (initialLeft) setInterval(() => loadLeft(initialLeft), watchIntervalMs);
+  if (initialRight) setInterval(() => loadRight(initialRight), watchIntervalMs);
+}
+
 left.picker.onClick((object) => {
   if (!object || object.userData?.kind !== "marker") return;
   const marker = object.userData.marker;
