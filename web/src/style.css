@@ -397,3 +397,33 @@ button:hover {
     min-height: 42vh;
   }
 }
+
+.gallery-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.8rem;
+  padding-bottom: 1rem;
+}
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--card);
+}
+
+.gallery-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.gallery-card p {
+  flex: 1 1 auto;
+  font-size: 0.85rem;
+}

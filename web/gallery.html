@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ObjectView — Scene Gallery</title>
+  </head>
+  <body>
+    <main class="linked-shell">
+      <header class="linked-header">
+        <p class="eyebrow">OBJECTVIEW</p>
+        <h1>Scene gallery</h1>
+        <p>Load a manifest -- a small JSON file listing labeled scenes, each either a single scene or a linked left/right pair -- and pick one to open. General-purpose: the manifest can point at any project's scenes, not just one.</p>
+      </header>
+
+      <div class="linked-panel-controls">
+        <label class="field-label" for="manifest-path">Manifest JSON path</label>
+        <div class="inline-row">
+          <input id="manifest-path" type="text" placeholder="e.g. a gallery-manifest.json path" />
+          <button id="load-manifest">Load</button>
+        </div>
+      </div>
+
+      <p id="gallery-status" class="linked-status">No manifest loaded.</p>
+      <div id="entries" class="gallery-grid"></div>
+    </main>
+    <script type="module" src="/src/gallery.js"></script>
+  </body>
+</html>

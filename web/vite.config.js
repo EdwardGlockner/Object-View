@@ -17,6 +17,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         linked: resolve(__dirname, "linked.html"),
+        gallery: resolve(__dirname, "gallery.html"),
       },
     },
   },
