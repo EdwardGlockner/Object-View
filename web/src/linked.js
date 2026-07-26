@@ -135,6 +135,22 @@ function wireHover(viewport) {
 wireHover(left);
 wireHover(right);
 
+// ?left=<path>&right=<path> query params auto-load both panels on page
+// load -- what lets a CLI (e.g. latentworld's `view` command) open this
+// page pre-loaded with both scenes instead of requiring two paths to be
+// pasted in and Load clicked twice by hand.
+const initialParams = new URLSearchParams(window.location.search);
+const initialLeft = initialParams.get("left");
+const initialRight = initialParams.get("right");
+if (initialLeft) {
+  leftPathInput.value = initialLeft;
+  loadLeft(initialLeft);
+}
+if (initialRight) {
+  rightPathInput.value = initialRight;
+  loadRight(initialRight);
+}
+
 left.picker.onClick((object) => {
   if (!object || object.userData?.kind !== "marker") return;
   const marker = object.userData.marker;

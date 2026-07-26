@@ -830,9 +830,24 @@ fetch("/api/health")
     backendStatus.textContent = "C++ backend unavailable. The web viewer can still run in Vite.";
   });
 
+// A ?scene=<path> query param loads a scene automatically on page load --
+// what lets a CLI (e.g. latentworld's `view` command) open this page
+// pre-loaded instead of requiring someone to paste a path into the input
+// field and click Load by hand. Skips the default sample load below (it's
+// unconditional and would otherwise race the scene load and win, since
+// neither is awaited relative to the other).
+const initialScenePath = new URLSearchParams(window.location.search).get("scene");
+if (initialScenePath) {
+  scenePathInput.value = initialScenePath;
+  loadSceneFromUrl(initialScenePath).catch((error) => {
+    console.error(error);
+    setStatus("Could not load the scene from the ?scene= URL parameter.");
+  });
+}
+
 resizeRenderer();
 animate();
-loadSample().catch((error) => {
+if (!initialScenePath) loadSample().catch((error) => {
   console.error(error);
   setStatus("Load a sample or open your own files.");
 });
