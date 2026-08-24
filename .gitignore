@@ -6,6 +6,7 @@ web/dist/
 web/node_modules/
 asset-downloads/
 screenshots/
+docs/images/gif-frames/
 build-wx-*.log
 web/vite-dev.log
 web/vite-dev.err.log

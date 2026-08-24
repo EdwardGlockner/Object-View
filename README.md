@@ -13,8 +13,8 @@ A compact 3D model viewer with:
 - a small `C++` backend for stats and static hosting
 
 ![object-view demo](docs/images/objectview-demo.gif)
-![object-view rover](docs/images/objectview-rover.png)
-![object-view front](docs/images/objectview-front.png)
+![object-view web](docs/images/objectview-web-full.png)
+![object-view native](docs/images/objectview-native-full.png)
 
 ## `> overview`
 
