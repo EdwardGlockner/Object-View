@@ -12,9 +12,9 @@ A compact 3D model viewer with:
 - a browser viewer built with `Three.js`
 - a small `C++` backend for stats and static hosting
 
-![object-view demo](docs/images/objectview-demo.gif)
-![object-view web](docs/images/objectview-web-full.png)
-![object-view native](docs/images/objectview-native-full.png)
+<p align="center">
+  <img src="docs/images/objectview-demo.gif" alt="object-view demo" />
+</p>
 
 ## `> overview`
 
@@ -40,6 +40,8 @@ cmake --build build
 
 ## `> run native`
 
+![object-view native](docs/images/objectview-native-full.png)
+
 ```bash
 ./build/object-view-native
 ```
@@ -51,6 +53,8 @@ Windows:
 ```
 
 ## `> run web`
+
+![object-view web](docs/images/objectview-web-full.png)
 
 ```bash
 ./build/object-view
