@@ -7,12 +7,6 @@ import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 
-import { parseScene } from "./scene/parseScene.js";
-import { buildScene } from "./scene/buildScene.js";
-import { createPlayback } from "./scene/playback.js";
-import { createPicker } from "./scene/picking.js";
-import { toFetchablePath } from "./scene/sceneAssets.js";
-
 const viewerElement = document.querySelector("#viewer");
 const dropzoneElement = document.querySelector("#dropzone");
 const sampleSelect = document.querySelector("#sample-select");
@@ -21,23 +15,14 @@ const modelInput = document.querySelector("#model-files");
 const resetViewButton = document.querySelector("#reset-view");
 const toggleSpinButton = document.querySelector("#toggle-spin");
 const toggleWireframeButton = document.querySelector("#toggle-wireframe");
-const clearSceneButton = document.querySelector("#clear-scene");
-const screenshotButton = document.querySelector("#screenshot-scene");
+const clearModelButton = document.querySelector("#clear-model");
+const screenshotButton = document.querySelector("#screenshot-view");
 const backendStatus = document.querySelector("#backend-status");
 const statusText = document.querySelector("#status-text");
 const statFormat = document.querySelector("#stat-format");
 const statMeshes = document.querySelector("#stat-meshes");
 const statTriangles = document.querySelector("#stat-triangles");
 const statSize = document.querySelector("#stat-size");
-const scenePathInput = document.querySelector("#scene-path");
-const loadSceneButton = document.querySelector("#load-scene");
-const transportCard = document.querySelector("#transport-card");
-const playPauseButton = document.querySelector("#play-pause");
-const scrubInput = document.querySelector("#scrub");
-const timeLabel = document.querySelector("#time-label");
-const legendCard = document.querySelector("#legend-card");
-const legendList = document.querySelector("#legend-list");
-const markerTooltip = document.querySelector("#marker-tooltip");
 
 const sampleCatalog = {
   "perseverance-rover": {
@@ -56,26 +41,10 @@ const sampleCatalog = {
     label: "Calibration cube",
     files: ["/samples/calibration-cube/calibration_cube.obj", "/samples/calibration-cube/calibration_cube.mtl"],
   },
-  "axis-marker": {
-    label: "Axis marker",
-    files: ["/samples/axis-marker/axis_marker.obj", "/samples/axis-marker/axis_marker.mtl"],
-  },
 };
-
-const LEGEND_ROWS = [
-  { key: "objects", color: "#ff3f2e", label: "Local axes: spins with object" },
-  { key: "objects", color: "#3399ff", label: "Global axes: fixed to world" },
-  { key: "paths", color: "#71e7c4", label: "Path: a route or trajectory" },
-  { key: "vectors", color: "#bf59d9", label: "Vector: a direction" },
-  { key: "ghosts", color: "#b3b3b3", label: "Ghost: alt. pose (faded)" },
-  { key: "markers", color: "#fadb59", label: "Marker: point of interest" },
-  { key: "frames", color: "#e68033", label: "Frame: authored coord. axes" },
-  { key: "heatmaps", color: "#bf4080", label: "Heatmap: value on the ground" },
-];
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x101315);
-scene.fog = new THREE.Fog(0x101315, 38, 84);
 
 const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 1000);
 camera.position.set(5.2, 3.6, 6.2);
@@ -97,10 +66,6 @@ const rimLight = new THREE.DirectionalLight(0x9ec9ff, 1.15);
 rimLight.position.set(-6, 2, -5);
 scene.add(rimLight);
 
-const gridHelper = new THREE.GridHelper(10, 10, 0x3a4248, 0x20262a);
-gridHelper.position.y = -1.6;
-scene.add(gridHelper);
-
 let currentModelRoot = null;
 let currentModelContent = null;
 let currentObjectUrls = [];
@@ -109,12 +74,6 @@ let wireframe = false;
 let baseScale = 1;
 let zoomScale = 1;
 let lastFrameTime = 0;
-
-let activeScene = null; // { globalGroups, pickables, update, ... } while a scene JSON is loaded
-let playback = null;
-let scrubbing = false;
-
-const picker = createPicker(renderer.domElement, camera);
 
 const movementKeys = new Set();
 const movementKeyCodes = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyQ", "KeyE"]);
@@ -168,19 +127,19 @@ function createAxisLabel(text, color, scale) {
   return sprite;
 }
 
-function buildAxes(length, labels) {
+function buildCoordinateSystem(length) {
   const group = new THREE.Group();
   group.add(new THREE.AxesHelper(length));
 
-  const x = createAxisLabel(labels.x, "#ff775f", length * 0.15);
+  const x = createAxisLabel("X", "#ff775f", length * 0.15);
   x.position.set(length + 0.18, 0, 0);
   group.add(x);
 
-  const y = createAxisLabel(labels.y, "#a8df5f", length * 0.15);
+  const y = createAxisLabel("Y", "#a8df5f", length * 0.15);
   y.position.set(0, length + 0.18, 0);
   group.add(y);
 
-  const z = createAxisLabel(labels.z, "#49bfff", length * 0.15);
+  const z = createAxisLabel("Z", "#49bfff", length * 0.15);
   z.position.set(0, 0, length + 0.18);
   group.add(z);
 
@@ -192,18 +151,7 @@ function disposeCurrentObjectUrls() {
   currentObjectUrls = [];
 }
 
-function hideSceneUi() {
-  transportCard.hidden = true;
-  legendCard.hidden = true;
-  markerTooltip.hidden = true;
-  picker.setPickables([]);
-  playback = null;
-  activeScene = null;
-}
-
 function clearCurrentModel() {
-  hideSceneUi();
-
   if (!currentModelRoot) {
     updateStats();
     return;
@@ -262,7 +210,7 @@ function applyWireframe(object, value) {
   });
 }
 
-function countSceneGeometry(object) {
+function countGeometry(object) {
   let meshes = 0;
   let triangles = 0;
 
@@ -292,6 +240,7 @@ function centerAndFit(object) {
 
   object.position.sub(center);
   root.add(object);
+  root.add(buildCoordinateSystem(Math.max(maxDimension * 0.48, 0.65)));
 
   baseScale = 3.15 / maxDimension;
   zoomScale = 1;
@@ -299,47 +248,16 @@ function centerAndFit(object) {
   root.position.set(0, 0, 0);
   root.rotation.set(-0.08, 0.72, 0);
 
-  const globalAxes = buildAxes(maxDimension * 1.05, { x: "X", y: "Y", z: "Z" });
-  const localAxes = buildAxes(maxDimension * 0.48, { x: "x", y: "y", z: "z" });
-  root.add(globalAxes);
-  root.add(localAxes);
-
   currentModelRoot = root;
   currentModelContent = object;
   scene.add(root);
 
-  const geometryStats = countSceneGeometry(object);
+  const geometryStats = countGeometry(object);
   updateStats({
     format: "3D",
     meshes: geometryStats.meshes,
     triangles: geometryStats.triangles,
     sizeLabel: `${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`,
-  });
-}
-
-function centerAndFitScene(built) {
-  const root = new THREE.Group();
-  const pivot = new THREE.Vector3(...built.pivot);
-  built.root.position.sub(pivot);
-  root.add(built.root);
-
-  const maxDimension = Math.max(built.radius * 2, 0.5);
-  baseScale = 3.15 / maxDimension;
-  zoomScale = 1;
-  root.scale.setScalar(baseScale);
-  root.position.set(0, 0, 0);
-  root.rotation.set(-0.08, 0.72, 0);
-
-  currentModelRoot = root;
-  currentModelContent = built.root;
-  scene.add(root);
-
-  const geometryStats = countSceneGeometry(built.root);
-  updateStats({
-    format: "SCENE",
-    meshes: geometryStats.meshes,
-    triangles: geometryStats.triangles,
-    sizeLabel: `radius ${built.radius.toFixed(2)}`,
   });
 }
 
@@ -373,21 +291,21 @@ async function loadObjWithMaterials(objUrl, mtlUrl, manager = createLoadingManag
   return loader.loadAsync(objUrl);
 }
 
-async function loadModelAsset(url, mtlUrl) {
+async function loadModelAsset(url, mtlUrl, manager = createLoadingManager()) {
   const extension = url.split(".").pop().toLowerCase();
   if (extension === "obj") {
-    return loadObjWithMaterials(url, mtlUrl);
+    return loadObjWithMaterials(url, mtlUrl, manager);
   }
   if (extension === "glb" || extension === "gltf") {
-    const result = await new GLTFLoader().loadAsync(url);
+    const result = await new GLTFLoader(manager).loadAsync(url);
     return result.scene;
   }
   if (extension === "stl") {
-    const geometry = await new STLLoader().loadAsync(url);
+    const geometry = await new STLLoader(manager).loadAsync(url);
     return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xd6d2c8, roughness: 0.72 }));
   }
   if (extension === "ply") {
-    const geometry = await new PLYLoader().loadAsync(url);
+    const geometry = await new PLYLoader(manager).loadAsync(url);
     geometry.computeVertexNormals();
     return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xd6d2c8, roughness: 0.72 }));
   }
@@ -409,23 +327,15 @@ async function loadModelFromFileList(fileList) {
   const manager = createLoadingManager(urlMap);
   const primaryUrl = urlMap.get(primary.name.toLowerCase());
   const extension = primary.name.split(".").pop().toLowerCase();
-  let loadedObject;
+  let loadedObject = null;
 
   if (extension === "obj") {
     const materialFile = files.find((file) => file.name.toLowerCase().endsWith(".mtl"));
     const materialUrl = materialFile ? urlMap.get(materialFile.name.toLowerCase()) : null;
     loadedObject = await loadObjWithMaterials(primaryUrl, materialUrl, manager);
     inspectObjWithBackend(await primary.text(), primary.name);
-  } else if (extension === "glb" || extension === "gltf") {
-    const result = await new GLTFLoader(manager).loadAsync(primaryUrl);
-    loadedObject = result.scene;
-  } else if (extension === "stl") {
-    const geometry = await new STLLoader(manager).loadAsync(primaryUrl);
-    loadedObject = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xd6d2c8, roughness: 0.72 }));
-  } else if (extension === "ply") {
-    const geometry = await new PLYLoader(manager).loadAsync(primaryUrl);
-    geometry.computeVertexNormals();
-    loadedObject = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0xd6d2c8, roughness: 0.72 }));
+  } else {
+    loadedObject = await loadModelAsset(primaryUrl, null, manager);
   }
 
   centerAndFit(loadedObject);
@@ -464,89 +374,13 @@ async function inspectObjWithBackend(source, name) {
   }
 }
 
-function renderLegend(flags) {
-  legendList.innerHTML = "";
-  for (const row of LEGEND_ROWS) {
-    if (!flags[row.key]) continue;
-    const item = document.createElement("li");
-    const swatch = document.createElement("span");
-    swatch.className = "legend-swatch";
-    swatch.style.background = row.color;
-    const label = document.createElement("span");
-    label.textContent = row.label;
-    item.append(swatch, label);
-    legendList.append(item);
-  }
-  legendCard.hidden = legendList.children.length === 0;
-}
-
-function formatSeconds(value) {
-  return `${value.toFixed(1)}s`;
-}
-
-async function loadSceneFromUrl(url) {
-  clearCurrentModel();
-  setStatus(`Loading scene ${url}...`);
-
-  const fetchUrl = toFetchablePath(url);
-  const response = await fetch(fetchUrl);
-  if (!response.ok) {
-    throw new Error(`Could not fetch scene: ${response.status}`);
-  }
-  const raw = await response.json();
-  const parsed = parseScene(raw);
-
-  const built = await buildScene(parsed, fetchUrl, loadModelAsset);
-  centerAndFitScene(built);
-
-  activeScene = built;
-  picker.setPickables(built.pickables);
-  renderLegend(built.legend);
-
-  if (built.duration > 0) {
-    transportCard.hidden = false;
-    playback = createPlayback(built.duration, (time, duration, playing) => {
-      built.update(time);
-      if (!scrubbing) scrubInput.value = String(time / duration);
-      timeLabel.textContent = `${formatSeconds(time)} / ${formatSeconds(duration)}`;
-      playPauseButton.textContent = playing ? "Pause" : "Play";
-      playPauseButton.classList.toggle("is-active", playing);
-    });
-  } else {
-    transportCard.hidden = true;
-  }
-
-  setStatus(`${parsed.name} loaded.`);
-}
-
 async function loadSample() {
-  const value = sampleSelect.value;
-
-  if (value.startsWith("scene:")) {
-    const scenePath = value.slice("scene:".length);
-    try {
-      await loadSceneFromUrl(scenePath);
-    } catch (error) {
-      console.error(error);
-      setStatus("Could not load the scene.");
-    }
-    return;
-  }
-
-  const sample = sampleCatalog[value];
+  const sample = sampleCatalog[sampleSelect.value];
   clearCurrentModel();
   setStatus(`Loading ${sample.label}...`);
 
   const extension = sample.files[0].split(".").pop().toLowerCase();
-  let object;
-
-  if (extension === "glb" || extension === "gltf") {
-    const result = await new GLTFLoader().loadAsync(sample.files[0]);
-    object = result.scene;
-  } else {
-    object = await loadObjWithMaterials(sample.files[0], sample.files[1]);
-  }
-
+  const object = await loadModelAsset(sample.files[0], sample.files[1]);
   centerAndFit(object);
   applyWireframe(currentModelContent, wireframe);
 
@@ -563,31 +397,6 @@ function resizeRenderer() {
   camera.aspect = clientWidth / clientHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(clientWidth, clientHeight, false);
-}
-
-function animate(frameTime = 0) {
-  requestAnimationFrame(animate);
-  const deltaSeconds = Math.min((frameTime - lastFrameTime) / 1000 || 0, 0.05);
-  lastFrameTime = frameTime;
-
-  if (autoSpin && currentModelRoot) {
-    currentModelRoot.rotation.y += 0.008;
-  }
-
-  updateContinuousMovement(deltaSeconds);
-
-  if (playback) {
-    playback.tick(deltaSeconds);
-  }
-
-  if (activeScene && currentModelRoot) {
-    const inverseDrag = currentModelRoot.quaternion.clone().invert();
-    for (const globalGroup of activeScene.globalGroups) {
-      globalGroup.quaternion.copy(inverseDrag);
-    }
-  }
-
-  renderer.render(scene, camera);
 }
 
 function moveModel(dx, dy, dz, distance = 0.12) {
@@ -624,6 +433,19 @@ function updateContinuousMovement(deltaSeconds) {
 
   const speed = 1.85;
   moveModel(dx / length, dy / length, dz / length, speed * deltaSeconds);
+}
+
+function animate(frameTime = 0) {
+  requestAnimationFrame(animate);
+  const deltaSeconds = Math.min((frameTime - lastFrameTime) / 1000 || 0, 0.05);
+  lastFrameTime = frameTime;
+
+  if (autoSpin && currentModelRoot) {
+    currentModelRoot.rotation.y += 0.008;
+  }
+
+  updateContinuousMovement(deltaSeconds);
+  renderer.render(scene, camera);
 }
 
 viewerElement.addEventListener("pointerdown", (event) => {
@@ -702,15 +524,6 @@ loadSampleButton.addEventListener("click", () => loadSample().catch((error) => {
   setStatus("Could not load the sample.");
 }));
 
-loadSceneButton.addEventListener("click", () => {
-  const path = scenePathInput.value.trim();
-  if (!path) return;
-  loadSceneFromUrl(path).catch((error) => {
-    console.error(error);
-    setStatus("Could not load the scene.");
-  });
-});
-
 resetViewButton.addEventListener("click", resetView);
 
 toggleSpinButton.addEventListener("click", () => {
@@ -725,9 +538,9 @@ toggleWireframeButton.addEventListener("click", () => {
   }
 });
 
-clearSceneButton.addEventListener("click", () => {
+clearModelButton.addEventListener("click", () => {
   clearCurrentModel();
-  setStatus("Scene cleared.");
+  setStatus("Viewer cleared.");
 });
 
 screenshotButton.addEventListener("click", () => {
@@ -747,35 +560,6 @@ screenshotButton.addEventListener("click", () => {
   }, "image/png");
 });
 
-playPauseButton.addEventListener("click", () => playback?.toggle());
-
-scrubInput.addEventListener("input", () => {
-  if (!playback) return;
-  scrubbing = true;
-  playback.pause();
-  playback.seek(Number(scrubInput.value) * playback.duration);
-});
-scrubInput.addEventListener("change", () => {
-  scrubbing = false;
-});
-
-picker.onHover((object, event) => {
-  if (!object || object.userData?.kind !== "marker") {
-    markerTooltip.hidden = true;
-    renderer.domElement.style.cursor = drag.active ? "grabbing" : "grab";
-    return;
-  }
-
-  const marker = object.userData.marker;
-  const label = marker.label ?? marker.id ?? "marker";
-  const rect = viewerElement.getBoundingClientRect();
-  markerTooltip.textContent = label;
-  markerTooltip.style.left = `${event.clientX - rect.left}px`;
-  markerTooltip.style.top = `${event.clientY - rect.top}px`;
-  markerTooltip.hidden = false;
-  renderer.domElement.style.cursor = "pointer";
-});
-
 ["dragenter", "dragover"].forEach((eventName) => {
   dropzoneElement.addEventListener(eventName, (event) => {
     event.preventDefault();
@@ -791,27 +575,6 @@ picker.onHover((object, event) => {
 });
 
 dropzoneElement.addEventListener("drop", (event) => {
-  const files = [...event.dataTransfer.files];
-  const sceneFile = files.find((file) => file.name.toLowerCase().endsWith(".json"));
-
-  if (sceneFile && files.length === 1) {
-    sceneFile.text().then((text) => {
-      clearCurrentModel();
-      const parsed = parseScene(JSON.parse(text));
-      return buildScene(parsed, "/", loadModelAsset).then((built) => {
-        centerAndFitScene(built);
-        activeScene = built;
-        picker.setPickables(built.pickables);
-        renderLegend(built.legend);
-        setStatus(`${parsed.name} loaded.`);
-      });
-    }).catch((error) => {
-      console.error(error);
-      setStatus("Could not load the dropped scene (its asset paths must be reachable from this page).");
-    });
-    return;
-  }
-
   loadModelFromFileList(event.dataTransfer.files).catch((error) => {
     console.error(error);
     setStatus("Could not load the dropped model.");
@@ -830,38 +593,9 @@ fetch("/api/health")
     backendStatus.textContent = "C++ backend unavailable. The web viewer can still run in Vite.";
   });
 
-// A ?scene=<path> query param loads a scene automatically on page load --
-// what lets a CLI (e.g. latentworld's `view` command) open this page
-// pre-loaded instead of requiring someone to paste a path into the input
-// field and click Load by hand. Skips the default sample load below (it's
-// unconditional and would otherwise race the scene load and win, since
-// neither is awaited relative to the other).
-const initialScenePath = new URLSearchParams(window.location.search).get("scene");
-if (initialScenePath) {
-  scenePathInput.value = initialScenePath;
-  loadSceneFromUrl(initialScenePath).catch((error) => {
-    console.error(error);
-    setStatus("Could not load the scene from the ?scene= URL parameter.");
-  });
-}
-
-// ?watch=<ms>, alongside ?scene=, re-fetches and rebuilds the same path on
-// an interval -- for pointing this at a stable filename a training run
-// keeps overwriting (see latentworld.callbacks.generic.SnapshotCallback's
-// write_latest) so the page updates on its own as training progresses,
-// instead of only ever showing whatever was loaded at page-open time.
-// Trades away camera position on every refresh (reloading re-fits the
-// scene from scratch, same as a manual Load click) for staying simple.
-const watchIntervalMs = Number(new URLSearchParams(window.location.search).get("watch"));
-if (initialScenePath && watchIntervalMs > 0) {
-  setInterval(() => {
-    loadSceneFromUrl(initialScenePath).catch((error) => console.error(error));
-  }, watchIntervalMs);
-}
-
 resizeRenderer();
 animate();
-if (!initialScenePath) loadSample().catch((error) => {
+loadSample().catch((error) => {
   console.error(error);
   setStatus("Load a sample or open your own files.");
 });

@@ -1,9 +1,14 @@
 build/
+build-wx/
+build-wx-release*/
 dist/
 web/dist/
 web/node_modules/
 asset-downloads/
 screenshots/
+build-wx-*.log
+web/vite-dev.log
+web/vite-dev.err.log
 .DS_Store
 *.user
 *.suo

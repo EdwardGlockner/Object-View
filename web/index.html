@@ -21,8 +21,6 @@
             <option value="craft-racer">Craft Racer</option>
             <option value="toy-car">Toy Car</option>
             <option value="calibration-cube">Calibration cube</option>
-            <option value="axis-marker">Axis marker</option>
-            <option value="scene:/data/scene-demo.json">Scene: Rover Traversal Demo</option>
           </select>
           <button id="load-sample" class="primary-button">Load sample</button>
         </section>
@@ -34,21 +32,12 @@
         </section>
 
         <section class="panel-card">
-          <label class="field-label" for="scene-path">Load a scene JSON</label>
-          <div class="inline-row">
-            <input id="scene-path" type="text" placeholder="/data/scene-demo.json" />
-            <button id="load-scene">Load</button>
-          </div>
-          <p class="field-help">Accepts a bundled path, or (in dev) a local path from a sibling project, e.g. LatentWorld's exports.</p>
-        </section>
-
-        <section class="panel-card">
           <div class="button-row">
             <button id="reset-view">Reset</button>
             <button id="toggle-spin">Spin</button>
             <button id="toggle-wireframe">Wireframe</button>
-            <button id="clear-scene">Clear</button>
-            <button id="screenshot-scene">Screenshot</button>
+            <button id="clear-model">Clear</button>
+            <button id="screenshot-view">Screenshot</button>
           </div>
         </section>
 
@@ -74,18 +63,6 @@
           </dl>
         </section>
 
-        <section class="panel-card" id="transport-card" hidden>
-          <div class="transport-row">
-            <button id="play-pause">Play</button>
-            <input id="scrub" type="range" min="0" max="1" step="0.001" value="0" />
-            <span id="time-label" class="time-label">0.0s / 0.0s</span>
-          </div>
-        </section>
-
-        <section class="panel-card" id="legend-card" hidden>
-          <label class="field-label">Legend</label>
-          <ul class="legend-list" id="legend-list"></ul>
-        </section>
       </aside>
 
       <section class="viewer-layout">
@@ -94,7 +71,6 @@
           <p><strong>Drop model files here</strong></p>
           <p>OBJ + MTL + textures can be dropped together.</p>
         </div>
-        <div id="marker-tooltip" class="marker-tooltip" hidden></div>
       </section>
     </main>
     <script type="module" src="/src/main.js"></script>

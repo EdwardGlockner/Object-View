@@ -8,9 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(FetchContent)
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+option(OBJECT_VIEW_FETCH_WXWIDGETS "Fetch wxWidgets when it is not already installed." ON)
 
 FetchContent_Declare(
   cpp_httplib
@@ -18,37 +16,64 @@ FetchContent_Declare(
   GIT_TAG v0.18.7
 )
 
-FetchContent_Declare(
-  glfw
-  GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG 3.4
-)
-
 find_package(OpenGL REQUIRED)
 
+set(OBJECT_VIEW_WX_TARGETS "")
+set(OBJECT_VIEW_WX_USE_FILE "")
+
+find_package(wxWidgets QUIET COMPONENTS core base gl)
+
+if (wxWidgets_FOUND)
+  set(OBJECT_VIEW_WX_USE_FILE ${wxWidgets_USE_FILE})
+elseif (OBJECT_VIEW_FETCH_WXWIDGETS)
+  set(wxBUILD_SHARED OFF CACHE BOOL "Build wxWidgets as static libraries." FORCE)
+  set(wxBUILD_SAMPLES OFF CACHE BOOL "Skip wxWidgets samples." FORCE)
+  set(wxBUILD_TESTS OFF CACHE BOOL "Skip wxWidgets tests." FORCE)
+  set(wxBUILD_DEMOS OFF CACHE BOOL "Skip wxWidgets demos." FORCE)
+  set(wxBUILD_BENCHMARKS OFF CACHE BOOL "Skip wxWidgets benchmarks." FORCE)
+  set(wxUSE_OPENGL ON CACHE BOOL "Enable OpenGL support in wxWidgets." FORCE)
+
+  FetchContent_Declare(
+    wxwidgets
+    GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
+    GIT_TAG v3.2.7
+  )
+
+  FetchContent_MakeAvailable(wxwidgets)
+  set(OBJECT_VIEW_WX_TARGETS wx::core wx::base wx::gl)
+else()
+  message(FATAL_ERROR "wxWidgets is required for object-view-native.")
+endif()
+
 FetchContent_MakeAvailable(cpp_httplib)
-FetchContent_MakeAvailable(glfw)
 
 add_executable(object-view
   backend/src/main.cpp
   backend/src/Model.cpp
-  backend/src/Scene.cpp
 )
 
 target_include_directories(object-view PRIVATE backend/include)
 target_link_libraries(object-view PRIVATE httplib::httplib)
 
+if (OBJECT_VIEW_WX_USE_FILE)
+  include(${OBJECT_VIEW_WX_USE_FILE})
+endif()
+
 add_executable(object-view-native
-  native/src/OpenGLViewer.cpp
+  native/src/MyApp.cpp
+  native/src/GLCanvas.cpp
   backend/src/Model.cpp
-  backend/src/Scene.cpp
 )
 
-target_include_directories(object-view-native PRIVATE backend/include)
-target_link_libraries(object-view-native PRIVATE glfw OpenGL::GL)
+target_include_directories(object-view-native PRIVATE backend/include native/include)
+if (OBJECT_VIEW_WX_TARGETS)
+  target_link_libraries(object-view-native PRIVATE ${OBJECT_VIEW_WX_TARGETS} OpenGL::GL)
+else()
+  target_link_libraries(object-view-native PRIVATE ${wxWidgets_LIBRARIES} OpenGL::GL)
+endif()
 
 if (WIN32)
-  target_link_libraries(object-view-native PRIVATE gdi32 gdiplus)
+  target_link_libraries(object-view-native PRIVATE gdi32 gdiplus opengl32 winmm)
 endif()
 
 if (MSVC)
