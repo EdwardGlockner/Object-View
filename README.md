@@ -9,8 +9,10 @@
 A compact 3D model viewer with:
 
 - a native `wxWidgets` + `OpenGL` desktop app
-- a browser viewer built with `Three.js`
-- a small `C++` backend for stats and static hosting
+- a browser viewer built with `Three.js`, running entirely client-side
+- an optional small `C++` backend for self-hosting the web build
+
+**Live demo:** <https://edwardglockner.github.io/Object-View/>
 
 <p align="center">
   <img src="docs/images/objectview-demo.gif" alt="object-view demo" />
@@ -56,17 +58,7 @@ Windows:
 
 ![object-view web](docs/images/objectview-web-full.png)
 
-```bash
-./build/object-view
-```
-
-Open:
-
-```text
-http://127.0.0.1:8080
-```
-
-For frontend development:
+The web viewer is fully client-side and needs no backend:
 
 ```bash
 cd web
@@ -78,6 +70,17 @@ Then open:
 ```text
 http://127.0.0.1:5173
 ```
+
+For a production build served locally:
+
+```bash
+cd web
+npm run build
+npm run preview
+```
+
+Optional: `./build/object-view` also serves the built web app over HTTP,
+if you built the C++ backend above and want to self-host it that way.
 
 ## `> controls`
 
