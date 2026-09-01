@@ -1,7 +1,7 @@
 {
   "name": "object-view-web",
   "version": "1.0.0",
-  "description": "Small web layer for the ObjectView C++ backend.",
+  "description": "Standalone Three.js model viewer — runs entirely client-side.",
   "private": true,
   "type": "module",
   "scripts": {

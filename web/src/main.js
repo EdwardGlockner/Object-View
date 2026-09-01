@@ -17,29 +17,30 @@ const toggleSpinButton = document.querySelector("#toggle-spin");
 const toggleWireframeButton = document.querySelector("#toggle-wireframe");
 const clearModelButton = document.querySelector("#clear-model");
 const screenshotButton = document.querySelector("#screenshot-view");
-const backendStatus = document.querySelector("#backend-status");
 const statusText = document.querySelector("#status-text");
 const statFormat = document.querySelector("#stat-format");
 const statMeshes = document.querySelector("#stat-meshes");
 const statTriangles = document.querySelector("#stat-triangles");
 const statSize = document.querySelector("#stat-size");
 
+const assetUrl = (path) => `${import.meta.env.BASE_URL}${path}`;
+
 const sampleCatalog = {
   "perseverance-rover": {
     label: "Perseverance Rover",
-    files: ["/samples/perseverance-rover/perseverance_rover.glb"],
+    files: [assetUrl("samples/perseverance-rover/perseverance_rover.glb")],
   },
   "craft-racer": {
     label: "Craft Racer",
-    files: ["/samples/craft-racer/craft_racer.glb"],
+    files: [assetUrl("samples/craft-racer/craft_racer.glb")],
   },
   "toy-car": {
     label: "Toy Car",
-    files: ["/samples/toy-car/ToyCar.glb"],
+    files: [assetUrl("samples/toy-car/ToyCar.glb")],
   },
   "calibration-cube": {
     label: "Calibration cube",
-    files: ["/samples/calibration-cube/calibration_cube.obj", "/samples/calibration-cube/calibration_cube.mtl"],
+    files: [assetUrl("samples/calibration-cube/calibration_cube.obj"), assetUrl("samples/calibration-cube/calibration_cube.mtl")],
   },
 };
 
@@ -231,7 +232,7 @@ function countGeometry(object) {
   return { meshes, triangles: Math.round(triangles) };
 }
 
-function centerAndFit(object) {
+function centerAndFit(object, formatLabel = "3D") {
   const root = new THREE.Group();
   const box = new THREE.Box3().setFromObject(object);
   const center = box.getCenter(new THREE.Vector3());
@@ -254,7 +255,7 @@ function centerAndFit(object) {
 
   const geometryStats = countGeometry(object);
   updateStats({
-    format: "3D",
+    format: formatLabel,
     meshes: geometryStats.meshes,
     triangles: geometryStats.triangles,
     sizeLabel: `${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`,
@@ -333,45 +334,13 @@ async function loadModelFromFileList(fileList) {
     const materialFile = files.find((file) => file.name.toLowerCase().endsWith(".mtl"));
     const materialUrl = materialFile ? urlMap.get(materialFile.name.toLowerCase()) : null;
     loadedObject = await loadObjWithMaterials(primaryUrl, materialUrl, manager);
-    inspectObjWithBackend(await primary.text(), primary.name);
   } else {
     loadedObject = await loadModelAsset(primaryUrl, null, manager);
   }
 
-  centerAndFit(loadedObject);
+  centerAndFit(loadedObject, extension.toUpperCase());
   applyWireframe(currentModelContent, wireframe);
   setStatus(`${primary.name} loaded.`);
-}
-
-async function inspectObjWithBackend(source, name) {
-  try {
-    const response = await fetch("/api/inspect", {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain",
-        "X-Model-Name": name,
-      },
-      body: source,
-    });
-
-    if (!response.ok) {
-      return;
-    }
-
-    const stats = await response.json();
-    statFormat.textContent = "OBJ";
-    statTriangles.textContent = Number(stats.triangleCount).toLocaleString();
-    if (stats.bounds?.valid) {
-      const size = {
-        x: stats.bounds.max.x - stats.bounds.min.x,
-        y: stats.bounds.max.y - stats.bounds.min.y,
-        z: stats.bounds.max.z - stats.bounds.min.z,
-      };
-      statSize.textContent = `${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`;
-    }
-  } catch {
-    backendStatus.textContent = "C++ backend unavailable. Rendering still works.";
-  }
 }
 
 async function loadSample() {
@@ -381,13 +350,8 @@ async function loadSample() {
 
   const extension = sample.files[0].split(".").pop().toLowerCase();
   const object = await loadModelAsset(sample.files[0], sample.files[1]);
-  centerAndFit(object);
+  centerAndFit(object, extension.toUpperCase());
   applyWireframe(currentModelContent, wireframe);
-
-  if (extension === "obj") {
-    const objSource = await fetch(sample.files[0]).then((response) => response.text());
-    inspectObjWithBackend(objSource, sample.files[0].split("/").pop());
-  }
 
   setStatus(`${sample.label} loaded.`);
 }
@@ -583,15 +547,6 @@ dropzoneElement.addEventListener("drop", (event) => {
 
 window.addEventListener("resize", resizeRenderer);
 new ResizeObserver(resizeRenderer).observe(viewerElement);
-
-fetch("/api/health")
-  .then((response) => response.json())
-  .then(() => {
-    backendStatus.textContent = "C++ backend connected.";
-  })
-  .catch(() => {
-    backendStatus.textContent = "C++ backend unavailable. The web viewer can still run in Vite.";
-  });
 
 resizeRenderer();
 animate();
