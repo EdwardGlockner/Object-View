@@ -216,6 +216,15 @@ button:hover {
   flex: 0 0 auto;
 }
 
+.app-shell.is-embed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app-shell.is-embed .control-panel,
+.app-shell.is-embed .dropzone {
+  display: none;
+}
+
 @media (max-width: 860px) {
   html,
   body {

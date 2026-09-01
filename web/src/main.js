@@ -23,6 +23,11 @@ const statMeshes = document.querySelector("#stat-meshes");
 const statTriangles = document.querySelector("#stat-triangles");
 const statSize = document.querySelector("#stat-size");
 
+const isEmbed = new URLSearchParams(window.location.search).has("embed");
+if (isEmbed) {
+  document.querySelector(".app-shell").classList.add("is-embed");
+}
+
 const assetUrl = (path) => `${import.meta.env.BASE_URL}${path}`;
 
 const sampleCatalog = {
@@ -70,7 +75,7 @@ scene.add(rimLight);
 let currentModelRoot = null;
 let currentModelContent = null;
 let currentObjectUrls = [];
-let autoSpin = false;
+let autoSpin = isEmbed;
 let wireframe = false;
 let baseScale = 1;
 let zoomScale = 1;
@@ -454,7 +459,7 @@ viewerElement.addEventListener("pointerup", (event) => {
 viewerElement.addEventListener("contextmenu", (event) => event.preventDefault());
 
 viewerElement.addEventListener("wheel", (event) => {
-  if (!currentModelRoot) {
+  if (!currentModelRoot || isEmbed) {
     return;
   }
 
